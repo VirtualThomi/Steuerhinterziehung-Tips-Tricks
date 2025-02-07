@@ -1,61 +1,152 @@
+<!DOCTYPE html>
 <html>
-<body>
-<script>
-
-    const LENGTH = 10;
-
-function setup() {
-    createCanvas(601, 301);
-    background("black");
-    colorMode(HSB);
-
-    fill("aqua");
-    noStroke();
-
-    textSize(50);
-    textAlign(CENTER, CENTER);
-    text("Move the mouse to start", 0, 0, width, height);
-}
-
-let initialColor = 0;
-
-function mouseMoved() {
-    resetMatrix();
-    background("black");
-    strokeWeight(2);
-
-    noFill();
-    const percentage = 1 + mouseX / width;
-
-    let sideLength = LENGTH * percentage;
-    for (let x = 0; x < width; x += sideLength) {
-        stroke(360 * x / width % 360, 100, 100);
-        push();
-        for (let y = 0; y < height; y += sideLength) {
-            line(0, 0, sideLength, sideLength / 2);
-            line(sideLength, sideLength / 2, 0, sideLength);
-            translate(0, sideLength);
+<head>
+    <title>Interactive Lines</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
         }
-        pop();
-        translate(sideLength, 0);
-    }
 
-    resetMatrix();
-    translate(0, height - 20);
-    fill("black");
-    noStroke();
-    rect(0, 0, width, 20);
-    fill("white");
-    textSize(12);
-    textAlign(LEFT, CENTER);
-    translate(5, 0);
-    text(`${mouseX} of ${width} = ${Math.round(percentage * 100)}%`, 0, 0, width, 20);
-}
+        canvas {
+            display: block; /* Remove default inline spacing */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        const LENGTH = 10;
+        let canvas;
+        let ctx;
+        let width;
+        let height;
+
+        function setup() {
+            canvas = document.getElementById("myCanvas");
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            ctx = canvas.getContext("2d");
+
+            background("black");
+            ctx.fillStyle = "aqua";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = "50px Arial"; // Correct font specification
+            ctx.fillText("Move the mouse to start", width / 2, height / 2);
+
+            canvas.addEventListener("mousemove", mouseMoved);
+        }
+
+        function background(color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, width, height);
+        }
 
 
-</script>
+        function stroke(hue, saturation, lightness) {
+            ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
 
-    
+        function strokeWeight(weight) {
+            ctx.lineWidth = weight;
+        }
+
+        function noFill() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0)"; // Transparent fill
+        }
+
+        function push() {
+            ctx.save();
+        }
+
+        function pop() {
+            ctx.restore();
+        }
+
+        function translate(x, y) {
+            ctx.translate(x, y);
+        }
+
+        function line(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function resetMatrix() {
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Resets transformation matrix
+        }
+
+        function fill(color) {
+            ctx.fillStyle = color;
+        }
+
+        function noStroke() {
+            ctx.strokeStyle = "rgba(0, 0, 0, 0)"; // Transparent stroke
+        }
+
+        function rect(x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+        }
+
+        function textSize(size) {
+            ctx.font = `${size}px Arial`; // Correct font specification
+        }
+
+        function textAlign(horizontal, vertical) {
+            ctx.textAlign = horizontal;
+            ctx.textBaseline = vertical;
+        }
+
+        function text(str, x, y, w, h) {
+            ctx.fillText(str, x, y, w); //Added width to the function for the text to be displayed
+        }
+
+
+        function mouseMoved(event) {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            resetMatrix();
+            background("black");
+            strokeWeight(2);
+
+            noFill();
+            const percentage = 1 + mouseX / width;
+
+            let sideLength = LENGTH * percentage;
+            for (let x = 0; x < width; x += sideLength) {
+                stroke(360 * x / width % 360, 100, 100);
+                push();
+                ctx.beginPath(); // Start a new path for each column
+                for (let y = 0; y < height; y += sideLength) {
+                    line(0, 0, sideLength, sideLength / 2);
+                    line(sideLength, sideLength / 2, 0, sideLength);
+                    translate(0, sideLength);
+                }
+                ctx.stroke(); // Stroke the entire column's lines at once
+                pop();
+                translate(sideLength, 0);
+            }
+
+            resetMatrix();
+            translate(0, height - 20);
+            fill("black");
+            noStroke();
+            rect(0, 0, width, 20);
+            fill("white");
+            textSize(12);
+            textAlign("left", "middle");
+            translate(5, 0);
+            text(`${mouseX} of ${width} = ${Math.round(percentage * 100)}%`, 0, 0, width, 20);
+        }
+
+        window.onload = setup; // Call setup when the window has loaded
+    </script>
 </body>
-    
 </html>
